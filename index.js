@@ -51,9 +51,15 @@ const db = mongoose.connection;
 db.on('error', (err) => console.log(err.message));
 db.once('open', () => console.log('Mongoose is connected'));
 
+const ORIGINS_WEBSITE_A = [
+	'https://gigme.vercel.app',
+	'http;//localhost:3000',
+];
+const ORIGINS_WEBSITE_B = ['*'];
+
 const io = new Server(serverPort, {
 	pingTimeout: 60000,
-	origin: 'http://localhost:3000',
+	origin: [...ORIGINS_WEBSITE_A, ...ORIGINS_WEBSITE_B],
 });
 
 io.on('connection', (socket) => {
@@ -73,7 +79,9 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('typing', (room) => socket.in(room).emit('typing'));
-	socket.on('typing', (room) => socket.in(room).emit('stop typing'));
+	socket.on('stop typing', (room) =>
+		socket.in(room).emit('stop typing'),
+	);
 	socket.on('new message', (newmessage) => {
 		let chat = newmessage.chat;
 		if (!chat.users) {
@@ -81,9 +89,13 @@ io.on('connection', (socket) => {
 		}
 
 		chat?.users.forEach((user) => {
-			if (user?._id === newmessage.sender[0]._id) return;
-			console.log(newmessage.sender[0]._id);
-			socket.in(user?._id).emit('message recieved', newmessage);
+			if (user === newmessage.sender[0]._id) return;
+			console.log(user);
+			socket.in(user).emit('message recieved', newmessage);
 		});
+	});
+	socket.off('addNewUser', () => {
+		console.log('USER DISCONNECTED');
+		socket.leave(userData.result._id);
 	});
 });
