@@ -2,6 +2,7 @@ import expressAsyncHandler from 'express-async-handler';
 import Message from '../models/message.js';
 import Chat from '../models/chat.js';
 import User from '../models/users.js';
+import Messages from '../../client/src/components/chatpage/Messages.js';
 export const sendMessage = expressAsyncHandler(async (req, res) => {
 	const { content, chatId } = req.body;
 	if (!content || !chatId) {
@@ -28,6 +29,7 @@ export const sendMessage = expressAsyncHandler(async (req, res) => {
 		await Chat.findByIdAndUpdate(req.body.chatId, {
 			latestMessage: message,
 		});
+		console.log([...message, message]);
 		res.json(message);
 	} catch (error) {
 		res.status(400);

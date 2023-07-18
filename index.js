@@ -40,17 +40,6 @@ const serverPort = app.listen(PORT, () =>
 	console.log(`Running on port ${PORT}`),
 );
 
-mongoose.set('strictQuery', true);
-mongoose
-	.connect(source)
-	.then(() => serverPort)
-	.catch((error) => console.log(error.message));
-
-const db = mongoose.connection;
-
-db.on('error', (err) => console.log(err.message));
-db.once('open', () => console.log('Mongoose is connected'));
-
 const ORIGINS_WEBSITE_A = [
 	'https://gigme.vercel.app',
 	'http://localhost:3000',
@@ -61,6 +50,16 @@ const io = new Server(serverPort, {
 	pingTimeout: 60000,
 	origin: [...ORIGINS_WEBSITE_A, ...ORIGINS_WEBSITE_B],
 });
+mongoose.set('strictQuery', true);
+mongoose
+	.connect(source)
+	.then(() => serverPort)
+	.catch((error) => console.log(error.message));
+
+const db = mongoose.connection;
+
+db.on('error', (err) => console.log(err.message));
+db.once('open', () => console.log('Mongoose is connected'));
 
 io.on('connection', (socket) => {
 	console.log('connected to socket.io');
