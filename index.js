@@ -53,7 +53,7 @@ db.once('open', () => console.log('Mongoose is connected'));
 
 const ORIGINS_WEBSITE_A = [
 	'https://gigme.vercel.app',
-	'http;//localhost:3000',
+	'http://localhost:3000',
 ];
 const ORIGINS_WEBSITE_B = ['*'];
 
