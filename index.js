@@ -63,7 +63,7 @@ const io = new Server(serverPort, {
 });
 io.on('connection', (socket) => {
 	console.log('connected to socket.io');
-
+	let history = [];
 	// listen to a connection
 
 	socket.on('addNewUser', (userData) => {
@@ -71,6 +71,7 @@ io.on('connection', (socket) => {
 		socket.emit('connected');
 	});
 
+	socket.emit('msg', history);
 	socket.on('join chat', (room) => {
 		socket.join(room);
 
@@ -89,9 +90,13 @@ io.on('connection', (socket) => {
 
 		chat?.users.forEach((user) => {
 			if (user === newmessage.sender[0]._id) return;
-			console.log(user);
+
 			socket.in(user).emit('message recieved', newmessage);
 		});
+		socket.emit('chat history', (data) => {
+			history.push(data);
+		});
+		console.log(history);
 	});
 	socket.off('addNewUser', () => {
 		console.log('USER DISCONNECTED');
