@@ -2,6 +2,7 @@ import User from '../models/users.js';
 import generateToken from '../jwtfunc.js';
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
+import { sendEmail } from '../utils/sendEmail.js';
 export const register = asyncHandler(async (req, res) => {
 	const { name, email, password, confirmpassword, pic } = req.body;
 	try {
@@ -19,6 +20,21 @@ export const register = asyncHandler(async (req, res) => {
 						});
 						const savedAdmin = await newuser.save();
 						if (savedAdmin) {
+							const send_to = email;
+							const send_from = process.env.EMAIL;
+							const subject = 'Welcome to GameHubz';
+							const message = `
+		<h2>Hello there ${name}</h2>
+		<br />
+		<p>Welcome to gigMe,a platform for all musicians to share their knowledge.</p>
+		<p>By getting this confirmation email it shows you have registered successfully.</p><span>On the website you're already navigated to the home page,here you get to see wahat your fellow musicians are upto and also access the main part and goal for this website.i.e gigs promotions and updates</span>
+<p>We are happy to welcome you to our family,enjoy everything about gamehubz.
+You will be sent reminders and notifications of any updates or promotions.</p>
+<h5>Regards from:</h5>
+<h6>Zacharia Muigai,<span style={{color:'red',fontWeight:'bold',fontSize:'.9rem}}>Head of Technology</span></h6>
+		`;
+							await sendEmail(subject, send_to, send_from, message);
+							console.log('Email Sent');
 							res.status(201).json({
 								message: 'Successfully Registered',
 								result: savedAdmin,
